@@ -23,12 +23,12 @@ void enterClaimGraph() {
         printf("Enter number of resources: ");
         scanf("%d", &numResources);
         // Check if number of resources is valid
-        if (numResources < 1 || numResources > 50) {
+        if (numResources < 2 || numResources > 50) {
             numResources = 0;
             printf("Invalid number of resources. Please try again.\n");
         }
 
-    } while (numResources < 1 || numResources > 50);
+    } while (numResources < 2 || numResources > 50);
 
     // Allocate memory for resource array
     resource = (int *)malloc(numResources * sizeof(int));
@@ -38,8 +38,16 @@ void enterClaimGraph() {
         scanf("%d", &resource[i]);
     }
 
-    printf("Enter number of processes: ");
-    scanf("%d", &numProcesses);
+    // Prompt user for number of processes
+    do {
+        printf("Enter number of processes: ");
+        scanf("%d", &numProcesses);
+        // Check if number of processes is valid
+        if (numProcesses < 1 || numProcesses > 50) {
+            numProcesses = 0;
+            printf("Invalid number of processes. Please try again.\n");
+        }
+    } while (numProcesses < 1 || numProcesses > 50);
 
     // Allocate memory for available, maxClaim, allocated, and need
     available = (int *)malloc(numResources * sizeof(int));
