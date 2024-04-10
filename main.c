@@ -16,6 +16,7 @@ void requestResource();
 void releaseResource();
 void determineSafeSequence();
 void quitProgram();
+void printState();
 
 void enterClaimGraph() {
     // Prompt user for number of resources
@@ -68,19 +69,28 @@ void enterClaimGraph() {
 
     // Prompt user for maximum claim matrix
     for (int i = 0; i < numProcesses; i++) {
-        printf("Enter Maximum number of units process p%d can claim (r0 to r%d): ", i, numResources - 1);
+        printf("Enter maximum number of units process p%d will claim from each resource (r0 to r%d): ", i, numResources - 1);
         for (int j = 0; j < numResources; j++) {
             scanf("%d", &maxClaim[i][j]);
         }
     }
     // Prompt user for allocated matrix
     for (int i = 0; i < numProcesses; i++) {
-        printf("Enter number of units each resource (r0 to r%d) currently allocated to process p%d: ", numResources - 1, i);
+        printf("Enter number of units of each resource (r0 to r%d) currently allocated to process p%d: ", numResources - 1, i);
         for (int j = 0; j < numResources; j++) {
             scanf("%d", &allocated[i][j]);
         }
     }
 
+    // Calculate need matrix
+    for (int i = 0; i < numProcesses; i++) {
+        for (int j = 0; j < numResources; j++) {
+            need[i][j] = maxClaim[i][j] - allocated[i][j];
+        }
+    }
+
+    // Print state of claim graph
+    printState();
 }
 
 void requestResource() {
@@ -94,6 +104,69 @@ void releaseResource() {
 void determineSafeSequence() {
     // Implement this function
 }
+
+void printState() {
+    printf("\nResources: \n");
+    printf("    ");
+    for (int i = 0; i < numResources; i++) {
+        printf("r%d      ", i);
+    }
+    printf("\n    ");
+    for (int i = 0; i < numResources; i++) {
+        printf("%d      ", resource[i]);
+    }
+    printf("\n\nAvailable: \n");
+    printf("    ");
+    for (int i = 0; i < numResources; i++) {
+        printf("r%d      ", i);
+    }
+    printf("\n    ");
+    for (int i = 0; i < numResources; i++) {
+        printf("%d      ", available[i]);
+    }
+    printf("\n\nMax Claim: \n");
+    printf("    ");
+    for (int i = 0; i < numResources; i++) {
+        printf("r%d      ", i);
+    }
+    printf("\n");
+    for (int i = 0; i < numProcesses; i++) {
+        printf("p%d  ", i);
+        for (int j = 0; j < numResources; j++) {
+            printf("%d      ", maxClaim[i][j]);
+        }
+        printf("\n");
+    }
+
+    printf("\nAllocated: \n");
+    printf("    ");
+    for (int i = 0; i < numResources; i++) {
+        printf("r%d      ", i);
+    }
+    printf("\n");
+    for (int i = 0; i < numProcesses; i++) {
+        printf("p%d  ", i);
+        for (int j = 0; j < numResources; j++) {
+            printf("%d      ", allocated[i][j]);
+        }
+        printf("\n");
+    }
+
+    printf("\nNeed: \n");
+    printf("    ");
+    for (int i = 0; i < numResources; i++) {
+        printf("r%d      ", i);
+    }
+    printf("\n");
+    for (int i = 0; i < numProcesses; i++) {
+        printf("p%d  ", i);
+        for (int j = 0; j < numResources; j++) {
+            printf("%d      ", need[i][j]);
+        }
+        printf("\n");
+    }
+}
+
 
 void quitProgram() {
     // Free dynamically allocated memory
