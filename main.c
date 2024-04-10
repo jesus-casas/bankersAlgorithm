@@ -82,6 +82,13 @@ void enterClaimGraph() {
         }
     }
 
+    // Update available array based on allocated resources
+    for (int i = 0; i < numProcesses; i++) {
+        for (int j = 0; j < numResources; j++) {
+            available[j] -= allocated[i][j];
+        }
+    }
+
     // Calculate need matrix
     for (int i = 0; i < numProcesses; i++) {
         for (int j = 0; j < numResources; j++) {
