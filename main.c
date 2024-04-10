@@ -66,6 +66,20 @@ void enterClaimGraph() {
         available[i] = resource[i];
     }
 
+    // Prompt user for maximum claim matrix
+    for (int i = 0; i < numProcesses; i++) {
+        printf("Enter Maximum number of units process p%d can claim (r0 to r%d): ", i, numResources - 1);
+        for (int j = 0; j < numResources; j++) {
+            scanf("%d", &maxClaim[i][j]);
+        }
+    }
+    // Prompt user for allocated matrix
+    for (int i = 0; i < numProcesses; i++) {
+        printf("Enter number of units each resource (r0 to r%d) currently allocated to process p%d: ", numResources - 1, i);
+        for (int j = 0; j < numResources; j++) {
+            scanf("%d", &allocated[i][j]);
+        }
+    }
 
 }
 
