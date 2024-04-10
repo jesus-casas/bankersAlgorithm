@@ -18,8 +18,17 @@ void determineSafeSequence();
 void quitProgram();
 
 void enterClaimGraph() {
-    printf("Enter number of resources: ");
-    scanf("%d", &numResources);
+    // Prompt user for number of resources
+    do {
+        printf("Enter number of resources: ");
+        scanf("%d", &numResources);
+        // Check if number of resources is valid
+        if (numResources < 1 || numResources > 50) {
+            numResources = 0;
+            printf("Invalid number of resources. Please try again.\n");
+        }
+
+    } while (numResources < 1 || numResources > 50);
 
     // Allocate memory for resource array
     resource = (int *)malloc(numResources * sizeof(int));
@@ -48,6 +57,8 @@ void enterClaimGraph() {
     for (int i = 0; i < numResources; i++) {
         available[i] = resource[i];
     }
+
+
 }
 
 void requestResource() {
