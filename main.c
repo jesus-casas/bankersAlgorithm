@@ -101,8 +101,15 @@ void enterClaimGraph() {
 }
 
 void requestResource() {
-    // Implement this function
+
 }
+
+// Dummy implementation of isSafe function for now
+int isSafe() {
+
+    return 1;  // For now, always return 1 (safe)
+}
+
 
 void releaseResource() {
     // Implement this function
@@ -174,9 +181,45 @@ void printState() {
     }
 }
 
+void printState_ANN() {
+    printf("\nAvailable: \n");
+    printf("    ");
+    for (int i = 0; i < numResources; i++) {
+        printf("r%d      ", i);
+    }
+
+        printf("\nAllocated: \n");
+    printf("    ");
+    for (int i = 0; i < numResources; i++) {
+        printf("r%d      ", i);
+    }
+    printf("\n");
+    for (int i = 0; i < numProcesses; i++) {
+        printf("p%d  ", i);
+        for (int j = 0; j < numResources; j++) {
+            printf("%d      ", allocated[i][j]);
+        }
+        printf("\n");
+    }
+
+    printf("\nNeed: \n");
+    printf("    ");
+    for (int i = 0; i < numResources; i++) {
+        printf("r%d      ", i);
+    }
+    printf("\n");
+    for (int i = 0; i < numProcesses; i++) {
+        printf("p%d  ", i);
+        for (int j = 0; j < numResources; j++) {
+            printf("%d      ", need[i][j]);
+        }
+        printf("\n");
+    }
+} 
 
 void quitProgram() {
     // Free dynamically allocated memory
+    printf("Freeing memory...\n");
     free(resource);
     free(available);
     for (int i = 0; i < numProcesses; i++) {
@@ -188,10 +231,8 @@ void quitProgram() {
     free(allocated);
     free(need);
 
-    printf("Quitting program...\n");
+    printf("Quitting program...Done\n");
 }
-
-
 
 int main() {
     int choice;
