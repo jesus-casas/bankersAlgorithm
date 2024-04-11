@@ -13,10 +13,12 @@ int **need;
 // Function prototypes
 void enterClaimGraph();
 void requestResource();
-void releaseResource();
 void determineSafeSequence();
+void releaseResource();
 void quitProgram();
 void printState();
+void printState_ANN();
+int isSafe();
 
 void enterClaimGraph() {
     // Prompt user for number of resources
@@ -101,22 +103,107 @@ void enterClaimGraph() {
 }
 
 void requestResource() {
+    int process, resourceIndex, unitsRequested;
+    char processName[10], resourceName[10];  // Adjusted size for larger inputs
 
+    // Prompt user for the requesting process
+    printf("Enter requesting process: ");
+    scanf("%s", processName);
+    process = atoi(&processName[1]);  // Extract the process number from the input
+
+    // Prompt user for the requested resource
+    printf("Enter requested resource: ");
+    scanf("%s", resourceName);
+    resourceIndex = atoi(&resourceName[1]);  // Extract the resource number from the input
+
+    // Prompt user for the number of units requested
+    printf("Enter number of units process %s is requesting from resource %s: ", processName, resourceName);
+    scanf("%d", &unitsRequested);
+
+    // Check if the request is valid
+    if (unitsRequested > need[process][resourceIndex]) {
+        printf("Error: Process %s is requesting more units than it needs.\n", processName);
+        return;
+    }
+
+    if (unitsRequested <= available[resourceIndex]) {
+        // Temporarily grant the request
+        available[resourceIndex] -= unitsRequested;
+        allocated[process][resourceIndex] += unitsRequested;
+        need[process][resourceIndex] -= unitsRequested;
+
+        // Check if the system is still in a safe state
+        if (isSafe()) {
+            // Request can be granted
+            printf("Request granted.\n");
+        } else {
+            // Revert the temporary changes if the system is not safe
+            available[resourceIndex] += unitsRequested;
+            allocated[process][resourceIndex] -= unitsRequested;
+            need[process][resourceIndex] += unitsRequested;
+            printf("Error: Granting the request would lead to an unsafe state.\n");
+        }
+    } else {
+        printf("Error: Not enough available resources.\n");
+    }
+
+    // Print the updated state of the system
+    printState_ANN();
 }
 
-// Dummy implementation of isSafe function for now
+
 int isSafe() {
+    int work[numResources];
+    int finish[numProcesses];
+    int safeSequence[numProcesses];
+    int count = 0;
 
-    return 1;  // For now, always return 1 (safe)
-}
+    // Initialize work array and finish array
+    for (int i = 0; i < numResources; i++) {
+        work[i] = available[i];
+    }
+    for (int i = 0; i < numProcesses; i++) {
+        finish[i] = 0;
+    }
 
+    // Find a safe sequence
+    while (count < numProcesses) {
+        int found = 0;
+        for (int i = 0; i < numProcesses; i++) {
+            if (!finish[i]) {
+                int j;
+                for (j = 0; j < numResources; j++) {
+                    if (need[i][j] > work[j]) {
+                        break;
+                    }
+                }
+                if (j == numResources) {
+                    for (int k = 0; k < numResources; k++) {
+                        work[k] += allocated[i][k];
+                    }
+                    safeSequence[count++] = i;
+                    finish[i] = 1;
+                    found = 1;
+                }
+            }
+        }
+        if (!found) {
+            break;  // No safe sequence found
+        }
+    }
 
-void releaseResource() {
-    // Implement this function
-}
-
-void determineSafeSequence() {
-    // Implement this function
+    // Check if all processes are finished
+    if (count < numProcesses) {
+        return 0;  // Not safe
+    } else {
+        // Print the safe sequence
+        printf("Safe sequence: ");
+        for (int i = 0; i < numProcesses; i++) {
+            printf("p%d ", safeSequence[i]);
+        }
+        printf("\n");
+        return 1;  // Safe
+    }
 }
 
 void printState() {
@@ -188,6 +275,12 @@ void printState_ANN() {
         printf("r%d      ", i);
     }
 
+    printf("\n    ");
+    for (int i = 0; i < numResources; i++) {
+        printf("%d      ", available[i]);
+    }
+    printf("\n");
+
         printf("\nAllocated: \n");
     printf("    ");
     for (int i = 0; i < numResources; i++) {
@@ -217,6 +310,107 @@ void printState_ANN() {
     }
 } 
 
+void releaseResource() {
+    int process, resourceIndex, unitsReleased;
+    char processName[50], resourceName[50];  // Adjusted size for larger inputs
+
+    // Prompt user for the releasing process
+    printf("Enter releasing processor: ");
+    scanf("%s", processName);
+    process = atoi(&processName[1]);  // Extract the process number from the input
+
+    // Prompt user for the released resource
+    printf("Enter released resource: ");
+    scanf("%s", resourceName);
+    resourceIndex = atoi(&resourceName[1]);  // Extract the resource number from the input
+
+    // Prompt user for the number of units released
+    printf("Enter number of units process %s is releasing from resource %s: ", processName, resourceName);
+    scanf("%d", &unitsReleased);
+
+    // Check if the release is valid
+    if (unitsReleased > allocated[process][resourceIndex]) {
+        printf("Error: Process %s is releasing more units than it has allocated.\n", processName);
+        return;
+    }
+
+    // Release the resource
+    available[resourceIndex] += unitsReleased;
+    allocated[process][resourceIndex] -= unitsReleased;
+    need[process][resourceIndex] += unitsReleased;
+
+    // Print the updated state of the system
+    printState_ANN();
+
+}
+
+void determineSafeSequence() {
+    int work[numResources];
+    int finish[numProcesses];
+    int safeSequence[numProcesses];
+    int count = 0;
+
+    // Initialize work array and finish array
+    for (int i = 0; i < numResources; i++) {
+        work[i] = available[i];
+    }
+    for (int i = 0; i < numProcesses; i++) {
+        finish[i] = 0;
+    }
+
+    // Find a safe sequence
+    while (count < numProcesses) {
+        int found = 0;
+        for (int i = 0; i < numProcesses; i++) {
+            if (!finish[i]) {
+                int j;
+                printf("Comparing: < ");
+                for (j = 0; j < numResources; j++) {
+                    printf("%d ", need[i][j]);
+                }
+                printf("> <= < ");
+                for (j = 0; j < numResources; j++) {
+                    printf("%d ", work[j]);
+                }
+                printf("> : ");
+
+                for (j = 0; j < numResources; j++) {
+                    if (need[i][j] > work[j]) {
+                        break;
+                    }
+                }
+                if (j == numResources) {
+                    for (int k = 0; k < numResources; k++) {
+                        work[k] += allocated[i][k];
+                    }
+                    safeSequence[count++] = i;
+                    finish[i] = 1;
+                    found = 1;
+                    printf("Process p%d can be sequenced\n", i);
+                } else {
+                    printf("Process p%d cannot be sequenced\n", i);
+                }
+            }
+        }
+        if (!found) {
+            break;  // No safe sequence found
+        }
+    }
+
+    // Check if all processes are finished
+    if (count < numProcesses) {
+        printf("No safe sequence found.\n");
+    } else {
+        // Print the safe sequence
+        printf("Safe sequence of processes: ");
+        for (int i = 0; i < numProcesses; i++) {
+            printf("p%d ", safeSequence[i]);
+        }
+        printf("\n");
+    }
+}
+
+
 void quitProgram() {
     // Free dynamically allocated memory
     printf("Freeing memory...\n");
@@ -231,7 +425,7 @@ void quitProgram() {
     free(allocated);
     free(need);
 
-    printf("Quitting program...Done\n");
+    printf("Quitting program...\n");
 }
 
 int main() {
